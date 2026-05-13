@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD Self-Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0c10;
+    --surface: #13151b;
+    --surface2: #1a1d26;
+    --surface3: #22252f;
+    --border: #2c3040;
+    --accent: #7c9aff;
+    --accent2: #b48efa;
+    --accent-glow: rgba(124,154,255,0.15);
+    --green: #5de4a5;
+    --amber: #f5c85a;
+    --red: #f47272;
+    --text: #e6e8f0;
+    --text2: #a0a4b8;
+    --text3: #696d82;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Figtree', sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ───────────────────────────────────── */
+  .hero {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 64px 24px 40px;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(124,154,255,0.2);
+    padding: 6px 16px;
+    border-radius: 99px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--text2);
+    font-size: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── PROGRESS ───────────────────────────────── */
+  .progress-wrap {
+    max-width: 680px;
+    margin: 0 auto 12px;
+    padding: 0 24px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .progress-track {
+    height: 5px;
+    background: var(--surface3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ── STICKY PROGRESS ────────────────────────── */
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,12,16,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    max-width: 100%;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .sticky-bar.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .sticky-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .sticky-inner .progress-track {
+    flex: 1;
+  }
+  .sticky-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  /* ── QUESTION CARDS ─────────────────────────── */
+  .questions {
+    max-width: 680px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .q-card:hover {
+    border-color: rgba(124,154,255,0.25);
+  }
+  .q-card.answered {
+    border-color: rgba(93,228,165,0.2);
+  }
+  .q-card.missed {
+    border-color: var(--red);
+    box-shadow: 0 0 0 1px var(--red);
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  .q-top {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .q-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    min-width: 32px;
+    line-height: 1.4;
+  }
+  .q-text {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.55;
+    font-weight: 400;
+  }
+
+  /* ── RADIO SCALE ────────────────────────────── */
+  .scale-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 48px;
+  }
+  .scale-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    min-width: 56px;
+  }
+  .scale-label.right { text-align: right; }
+  .dots {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+  }
+  .dot-label {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dot-label input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .dot {
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    transition: all 0.2s ease;
+    background: transparent;
+  }
+  .dot-label:nth-child(1) .dot { width: 36px; height: 36px; }
+  .dot-label:nth-child(2) .dot { width: 30px; height: 30px; }
+  .dot-label:nth-child(3) .dot { width: 26px; height: 26px; }
+  .dot-label:nth-child(4) .dot { width: 30px; height: 30px; }
+  .dot-label:nth-child(5) .dot { width: 36px; height: 36px; }
+
+  .dot-label:hover .dot {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .dot-label input:checked ~ .dot {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 12px rgba(124,154,255,0.4);
+  }
+
+  /* ── SUBMIT ─────────────────────────────────── */
+  .submit-area {
+    max-width: 680px;
+    margin: 48px auto 80px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .submit-btn {
+    font-family: 'Figtree', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px 48px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124,154,255,0.3);
+  }
+  .err-msg {
+    color: var(--red);
+    font-size: 0.85rem;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ── RESULTS ────────────────────────────────── */
+  .result-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(11,12,16,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow-y: auto;
+    padding: 40px 24px;
+  }
+  .result-overlay.show { display: flex; justify-content: center; align-items: flex-start; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    max-width: 520px;
+    width: 100%;
+    margin: 40px auto;
+    text-align: center;
+  }
+
+  .score-circle {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 32px;
+  }
+  .score-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-circle .track {
+    fill: none;
+    stroke: var(--surface3);
+    stroke-width: 6;
+  }
+  .score-circle .fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .score-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3rem;
+    color: #fff;
+    line-height: 1;
+  }
+  .score-sub {
+    font-size: 0.8rem;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  .result-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .result-desc {
+    font-size: 0.9rem;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .bands {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  .band {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    font-size: 0.82rem;
+    color: var(--text2);
+    border: 1px solid transparent;
+    transition: all 0.3s;
+  }
+  .band strong {
+    color: var(--text);
+    min-width: 72px;
+    font-weight: 600;
+  }
+  .band.active {
+    background: var(--accent-glow);
+    border-color: rgba(124,154,255,0.3);
+    color: var(--text);
+  }
+
+  .disclaimer {
+    font-size: 0.78rem;
+    color: var(--text3);
+    line-height: 1.6;
+    padding: 16px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+  }
+
+  .retake-btn {
+    font-family: 'Figtree', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .retake-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* ── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 520px) {
+    .hero { padding: 48px 16px 28px; }
+    .hero h1 { font-size: 2rem; }
+    .progress-wrap { padding: 0 16px; }
+    .questions { padding: 0 12px; gap: 10px; }
+    .q-card { padding: 18px 14px; }
+    .q-top { gap: 10px; }
+    .q-num { font-size: 1.2rem; min-width: 28px; }
+    .q-text { font-size: 0.88rem; }
+    .scale-row {
+      padding-left: 0;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .scale-label { display: none; }
+    .dots {
+      gap: 6px;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .dots::before { content: 'Disagree'; font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.04em; display: flex; align-items: center; }
+    .dots::after { content: 'Agree'; font-size: 10px; color: var(--text3); font-weight: 600; letter-spacing: 0.04em; display: flex; align-items: center; }
+    .dot-label:nth-child(1) .dot,
+    .dot-label:nth-child(5) .dot { width: 40px; height: 40px; }
+    .dot-label:nth-child(2) .dot,
+    .dot-label:nth-child(4) .dot { width: 34px; height: 34px; }
+    .dot-label:nth-child(3) .dot { width: 30px; height: 30px; }
+    .submit-btn { width: 100%; padding: 18px; font-size: 1.05rem; }
+    .result-card { padding: 28px 16px; }
+    .score-circle { width: 150px; height: 150px; }
+    .score-big { font-size: 2.4rem; }
+    .result-title { font-size: 1.5rem; }
+    .band { padding: 10px 12px; font-size: 0.78rem; }
+    .band strong { min-width: 60px; font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- STICKY PROGRESS -->
+<div class="sticky-bar" id="stickyBar">
+  <div class="sticky-inner">
+    <span class="sticky-label" id="stickyLabel">0 / 60</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="stickyFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Self-Screening Tool</div>
+  <h1>ADHD <em>Self-Assessment</em></h1>
+  <p>Rate each statement from 1 (Disagree) to 5 (Agree). Answer honestly — there are no right or wrong responses.</p>
+</div>
+
+<!-- MAIN PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span id="progText">0 of 60 answered</span>
+    <span id="progPct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progFill"></div>
+  </div>
+</div>
+
+<!-- QUESTIONS -->
+<div class="questions" id="questionsContainer"></div>
+
+<!-- SUBMIT -->
+<div class="submit-area">
+  <button class="submit-btn" onclick="submit()">See My Results</button>
+  <div class="err-msg" id="errMsg">Please answer all 60 questions before submitting.</div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="score-circle">
+      <svg viewBox="0 0 100 100">
+        <circle class="track" cx="50" cy="50" r="42"/>
+        <circle class="fill" id="ringFill" cx="50" cy="50" r="42"
+          stroke-dasharray="263.9" stroke-dashoffset="263.9"
+          stroke="url(#grad)"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c9aff"/>
+            <stop offset="100%" stop-color="#b48efa"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-center">
+        <div class="score-big" id="resScore">—</div>
+        <div class="score-sub">out of 300</div>
+      </div>
+    </div>
+
+    <div class="result-title" id="resTitle">—</div>
+    <div class="result-desc" id="resDesc">—</div>
+
+    <div class="bands">
+      <div class="band" id="b1"><strong>60 – 120</strong> Minimal / No Indicators</div>
+      <div class="band" id="b2"><strong>121 – 180</strong> Mild Indicators</div>
+      <div class="band" id="b3"><strong>181 – 240</strong> Moderate Indicators</div>
+      <div class="band" id="b4"><strong>241 – 300</strong> Strong Indicators</div>
+    </div>
+
+    <p class="disclaimer">This is a self-screening tool only and does not constitute a medical diagnosis. Please consult a qualified healthcare professional for a proper evaluation.</p>
+
+    <button class="retake-btn" onclick="location.reload()">Retake Assessment</button>
+  </div>
+</div>
+
+<script>
+const Q = [
+  "I feel a sense of social isolation or frustration due to communication difficulties.",
+  "I struggle to maintain focus during group activities or social gatherings.",
+  "I find it challenging to wait my turn in situations like lines or group discussions.",
+  "I sometimes act without thinking about the consequences of my actions.",
+  "I have difficulty staying on schedule or meeting time-based goals.",
+  "I frequently start projects but leave them incomplete.",
+  "I struggle with feelings of low self-esteem due to perceived failures or mistakes.",
+  "I often replay social interactions in my mind, worrying about what I said or did.",
+  "I am easily distracted by external stimuli (e.g., noises, conversations, visual interruptions).",
+  "I often interrupt others during conversations or activities.",
+  "I struggle to pick up on social cues, such as when someone is disinterested.",
+  "I find it challenging to maintain positive relationships due to emotional reactivity.",
+  "I have difficulty relaxing or sitting still for extended periods.",
+  "I often forget appointments, deadlines, or other responsibilities.",
+  "I often feel a strong sense of urgency or impatience when waiting for results or responses.",
+  "I often feel disconnected from conversations because my mind drifts elsewhere.",
+  "I avoid or delay tasks that require prolonged mental effort.",
+  "I have difficulty organizing tasks or activities effectively.",
+  "I often feel irritable or easily annoyed.",
+  "I struggle to prioritize tasks and frequently feel overwhelmed.",
+  "I struggle to follow through on instructions or finish projects once started.",
+  "I struggle to engage in leisure activities without feeling the need to move or do something else.",
+  "I frequently blurt out answers or comments before a question or statement is completed.",
+  "I frequently feel 'on the go' as if driven by a motor.",
+  "I have trouble listening when spoken to directly, often feeling my mind wander.",
+  "I often feel overwhelmed by the amount of work or tasks I need to complete.",
+  "I have trouble waiting for the right moment to contribute to discussions.",
+  "I often underestimate how long tasks will take, leading to delays.",
+  "I feel driven to stay constantly active or busy.",
+  "I often leave my seat in situations where staying seated is expected.",
+  "I frequently forget important details about others, such as birthdays or names.",
+  "I struggle to allocate my time effectively, leading to missed deadlines.",
+  "I frequently overcommit to tasks or responsibilities.",
+  "I find it hard to recover quickly from setbacks or negative experiences.",
+  "I experience intense emotions that are hard to control.",
+  "I struggle to find effective ways to calm down when upset.",
+  "I feel the need to fidget or move my hands and feet when seated.",
+  "I rely on external reminders, such as alarms or notes, to stay organized.",
+  "I often feel misunderstood or unappreciated by others.",
+  "I frequently lose items needed for tasks, such as keys, phones, or paperwork.",
+  "I often feel unprepared due to poor time management.",
+  "I experience mood swings that seem disproportionate to the situation.",
+  "I often find myself pacing, tapping, or engaging in other repetitive movements.",
+  "I have trouble coping with criticism or feedback without becoming defensive.",
+  "I have difficulty resisting temptations or impulses, even when I know I shouldn't.",
+  "I have difficulty managing my emotions, often feeling overwhelmed by frustration or anger.",
+  "I feel that my impulsiveness sometimes strains relationships.",
+  "I procrastinate on important responsibilities until the last minute.",
+  "I often feel that I talk too much or dominate conversations.",
+  "I frequently switch from one activity to another without completing the first.",
+  "I feel restless or impatient in situations where I need to remain seated for long periods.",
+  "I frequently talk excessively, even when it's inappropriate.",
+  "I struggle to control emotional outbursts or sudden reactions.",
+  "I experience a constant sense of internal restlessness or agitation.",
+  "I often engage in activities that require physical movement to stay focused.",
+  "I find it challenging to maintain long-term friendships due to misunderstandings.",
+  "I find it difficult to sustain attention on tasks or activities for long periods.",
+  "I have difficulty engaging in activities quietly or calmly.",
+  "I often make careless mistakes in work or school tasks due to lack of attention to detail.",
+  "I have difficulty maintaining a consistent daily routine."
+];
+
+const container = document.getElementById('questionsContainer');
+
+Q.forEach((q, i) => {
+  const card = document.createElement('div');
+  card.className = 'q-card';
+  card.id = 'card-' + i;
+  card.innerHTML = `
+    <div class="q-top">
+      <div class="q-num">${i + 1}.</div>
+      <div class="q-text">${q}</div>
+    </div>
+    <div class="scale-row">
+      <span class="scale-label">Disagree</span>
+      <div class="dots">
+        ${[1,2,3,4,5].map(v => `
+          <label class="dot-label">
+            <input type="radio" name="q${i}" value="${v}" onchange="onAnswer(${i})">
+            <div class="dot"></div>
+          </label>
+        `).join('')}
+      </div>
+      <span class="scale-label right">Agree</span>
+    </div>
+  `;
+  container.appendChild(card);
+});
+
+function onAnswer(idx) {
+  document.getElementById('card-' + idx).classList.add('answered');
+  document.getElementById('card-' + idx).classList.remove('missed');
+  updateProgress();
+}
+
+function updateProgress() {
+  let count = 0;
+  Q.forEach((_, i) => { if (document.querySelector(`input[name="q${i}"]:checked`)) count++; });
+  const pct = Math.round((count / 60) * 100);
+  document.getElementById('progText').textContent = `${count} of 60 answered`;
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('stickyFill').style.width = pct + '%';
+  document.getElementById('stickyLabel').textContent = `${count} / 60`;
+}
+
+// Sticky bar on scroll
+const heroEnd = document.querySelector('.progress-wrap');
+const stickyBar = document.getElementById('stickyBar');
+const obs = new IntersectionObserver(([e]) => {
+  stickyBar.classList.toggle('visible', !e.isIntersecting);
+}, { threshold: 0 });
+obs.observe(heroEnd);
+
+function submit() {
+  const missed = [];
+  let total = 0;
+  Q.forEach((_, i) => {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!sel) { missed.push(i); }
+    else { total += parseInt(sel.value); }
+  });
+
+  if (missed.length > 0) {
+    document.getElementById('errMsg').style.display = 'block';
+    missed.forEach(i => document.getElementById('card-' + i).classList.add('missed'));
+    document.getElementById('card-' + missed[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => missed.forEach(i => document.getElementById('card-' + i).classList.remove('missed')), 1500);
+    return;
+  }
+
+  document.getElementById('errMsg').style.display = 'none';
+  showResult(total);
+}
+
+function showResult(score) {
+  document.getElementById('resScore').textContent = score;
+
+  const circum = 2 * Math.PI * 42;
+  const offset = circum - (score / 300) * circum;
+  setTimeout(() => {
+    document.getElementById('ringFill').style.strokeDashoffset = offset;
+  }, 100);
+
+  let title, desc, bandId;
+  if (score <= 120) {
+    title = 'Minimal / No Indicators';
+    desc = 'Your responses suggest you manage attention, impulse control, and organisation relatively well. Most people fall somewhere in this range.';
+    bandId = 'b1';
+  } else if (score <= 180) {
+    title = 'Mild Indicators';
+    desc = 'Your responses reflect some traits that can overlap with ADHD, but at a mild level. Many people experience these occasionally due to stress or lifestyle factors.';
+    bandId = 'b2';
+  } else if (score <= 240) {
+    title = 'Moderate Indicators';
+    desc = 'Your responses show a moderate number of ADHD-associated traits. It may be worth discussing these patterns with a healthcare professional for further evaluation.';
+    bandId = 'b3';
+  } else {
+    title = 'Strong Indicators';
+    desc = 'Your responses reflect a significant number of traits commonly associated with ADHD. A formal evaluation by a qualified professional is strongly recommended.';
+    bandId = 'b4';
+  }
+
+  document.getElementById('resTitle').textContent = title;
+  document.getElementById('resDesc').textContent = desc;
+  document.getElementById(bandId).classList.add('active');
+
+  const overlay = document.getElementById('resultOverlay');
+  overlay.classList.add('show');
+  overlay.scrollTop = 0;
+}
+</script>
+</body>
+</html>
